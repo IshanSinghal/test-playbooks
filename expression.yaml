@@ -1,0 +1,31 @@
+---
+- hosts: docker_hosts1
+  gather_facts: no
+  remote_user: root
+  tasks:
+  - name: run clean up interface script
+    command: ./clean-interfaces.sh --disable --nuke
+  - name: update the network
+    command: nmcli con mod em2 ipv4.addresses 172.23.{{ 175 + 8 * groups['docker_hosts1'].index(inventory_hostname)|int }}.254/14
+  - name: make sure the network is up
+    command:  nmcli connection up em2
+- hosts: docker_hosts2
+  gather_facts: no
+  remote_user: root
+  tasks:
+  - name: run clean up interface script
+    command: ./clean-interfaces.sh --disable --nuke
+  - name: update the network
+    command: nmcli con mod p1p1 ipv4.addresses 172.23.{{ 199 + 8 * groups['docker_hosts2'].index(inventory_hostname)|int }}.254/14
+  - name: make sure the network is up
+    command:  nmcli connection up p1p1
+- hosts: docker_hosts3
+  gather_facts: no
+  remote_user: root
+  tasks:
+  - name: run clean up interface script
+    command: ./clean-interfaces.sh --disable --nuke
+  - name: update the network
+    command: nmcli con mod enp1s0f0 ipv4.addresses 172.21.{{ 47 + 8 * groups['docker_hosts3'].index(inventory_hostname)|int }}.254/14
+  - name: make sure the network is up
+    command:  nmcli connection up enp1s0f0
